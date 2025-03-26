@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
-// import Test from '@/components/Test.vue'
-import Test from './Test.vue'
+import Test from '@/views/Test.vue'
 
 describe('Test.vue', () => {
   it('renders correctly', async () => {

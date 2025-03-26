@@ -10,6 +10,7 @@ export default {
       }
     }
   },
+  setupFiles: ['<rootDir>/_tests_/setup.js'],
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
