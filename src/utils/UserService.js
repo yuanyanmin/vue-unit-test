@@ -1,12 +1,15 @@
 // src/UserService.js
 export class UserService {
   constructor() {
-    this.users = new Map(); // 模拟数据库
+    this.users = new Map();
   }
 
   async addUser(id, name, email) {
     if (!id || !name || !email) {
       throw new Error('ID, name, and email cannot be empty');
+    }
+    if (email && !this.validateEmail(email)) {
+      throw new Error('Invalid email format');
     }
     if (this.users.has(id)) {
       throw new Error('User already exists');
@@ -34,6 +37,9 @@ export class UserService {
     if (!this.users.has(id)) {
       throw new Error('User not found');
     }
+    if (email && !this.validateEmail(email)) {
+      throw new Error('Invalid email format');
+    }
     if (name) {
       this.users.get(id).name = name;
     }
@@ -41,5 +47,10 @@ export class UserService {
       this.users.get(id).email = email;
     }
     return this.users.get(id);
+  }
+
+  validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }
