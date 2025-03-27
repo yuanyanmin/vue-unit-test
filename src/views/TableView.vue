@@ -63,8 +63,9 @@ export default {
     openDialog(type, row) {
       this.dialogType = type
       this.dialogTitle = type === 'add' ? '新增' : '编辑'
-      this.form = type === 'add' ? { name: '', age: null, address: '' } : { ...row }
-      this.form = row || { name: '', age: null, address: '' }
+
+      this.form = type === 'add' ? { name: '', age: null, address: '' } : { ...this.form, ...row }
+      // this.form = row || { name: '', age: null, address: '' }
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.form?.clearValidate()
@@ -94,7 +95,9 @@ export default {
       this.dialogVisible = false
     },
     deleteRow(index) {
-      this.tableData.splice(index, 1)
+      if (index >= 0 && index < this.tableData.length) {
+        this.tableData.splice(index, 1)
+      }
     }
   }
 }

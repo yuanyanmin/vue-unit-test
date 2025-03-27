@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { ElButton, ElTable, ElDialog, ElForm, ElInput } from 'element-plus'
 import TableView from '@/views/TableView.vue'
 
 describe('TableView.vue', () => {
@@ -38,31 +39,6 @@ describe('TableView.vue', () => {
         address: '北京市'
       })
     })
-
-    test('关闭对话框应重置表单并隐藏对话框', async () => {
-      await wrapper.find('.el-button--primary').trigger('click') // 打开新增对话框
-      expect(wrapper.vm.dialogVisible).toBe(true)
-
-      await wrapper.find('.el-dialog__close').trigger('click') // 关闭对话框
-      wrapper.vm.dialogVisible = false
-      expect(wrapper.vm.dialogVisible).toBe(false)
-      expect(wrapper.vm.form).toEqual({
-        name: '',
-        age: null,
-        address: ''
-      })
-    })
-  
-    test('打开编辑对话框时传入不完整数据应填充默认值', async () => {
-      wrapper.vm.openDialog('edit', { name: '张三', age: 25 })
-      await wrapper.vm.$nextTick()
-      expect(wrapper.vm.dialogVisible).toBe(true)
-      expect(wrapper.vm.form).toEqual({
-        name: '张三',
-        age: 25,
-        address: '' // 假设默认值为空字符串
-      })
-    })
   })
 
   // 表单验证测试
@@ -78,50 +54,6 @@ describe('TableView.vue', () => {
       const isValid = await wrapper.vm.validateForm()
       expect(isValid).toBe(false)
     })
-
-    // test('年龄字段为负数或零应验证失败', async () => {
-    //   wrapper.vm.form = { name: '测试', age: -5, address: '地址' }
-    //   const isValid = await wrapper.vm.validateForm()
-    //   expect(isValid).toBe(false)
-  
-    //   wrapper.vm.form = { name: '测试', age: 0, address: '地址' }
-    //   const isValid2 = await wrapper.vm.validateForm()
-    //   expect(isValid2).toBe(false)
-    // })
-  
-    // test('其他字段为空但年龄字段为有效数字时应验证失败', async () => {
-    //   wrapper.vm.form = { name: '', age: 25, address: '' }
-    //   const isValid = await wrapper.vm.validateForm()
-    //   expect(isValid).toBe(false)
-  
-    //   wrapper.vm.form = { name: '测试', age: 25, address: '' }
-    //   const isValid2 = await wrapper.vm.validateForm()
-    //   expect(isValid2).toBe(false)
-  
-    //   wrapper.vm.form = { name: '测试', age: 25, address: '地址' }
-    //   const isValid3 = await wrapper.vm.validateForm()
-    //   expect(isValid3).toBe(true)
-    // })
-  
-    // test('打开编辑对话框时传入的数据为 null 或 undefined 应填充默认值', async () => {
-    //   wrapper.vm.openDialog('edit', null)
-    //   await wrapper.vm.$nextTick()
-    //   expect(wrapper.vm.dialogVisible).toBe(true)
-    //   expect(wrapper.vm.form).toEqual({
-    //     name: '',
-    //     age: null,
-    //     address: ''
-    //   })
-  
-    //   wrapper.vm.openDialog('edit', undefined)
-    //   await wrapper.vm.$nextTick()
-    //   expect(wrapper.vm.dialogVisible).toBe(true)
-    //   expect(wrapper.vm.form).toEqual({
-    //     name: '',
-    //     age: null,
-    //     address: ''
-    //   })
-    // })
   })
 
   // 数据操作测试

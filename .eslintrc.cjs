@@ -2,6 +2,8 @@
 require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
+  lintOnSave: false,
+  rules: {},
   root: true,
   'extends': [
     'plugin:vue/vue3-essential',
@@ -11,5 +13,8 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  env: {
+    jest: true,
   }
 }
