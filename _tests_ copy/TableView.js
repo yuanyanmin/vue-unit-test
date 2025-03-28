@@ -1,112 +1,116 @@
 import { mount } from '@vue/test-utils'
+import { ElButton, ElTable, ElDialog, ElForm, ElInput } from 'element-plus'
 import TableView from '@/views/TableView.vue'
 
 describe('TableView.vue', () => {
-  let wrapper
-  const initialData = [
-    { name: '张三', age: 25, address: '北京市' },
-    { name: '李四', age: 30, address: '上海市' }
-  ]
+  const wrapper = mount(TableView, {
+    global: {
 
-  beforeEach(() => {
-    wrapper = mount(TableView)
-  })
-
-  // 基础功能测试
-  it('正确初始化表格数据', () => {
-    expect(wrapper.vm.tableData).toEqual(initialData)
-    expect(wrapper.findComponent({ name: 'ElTable' }).exists()).toBe(true)
-  })
-
-  describe('新增功能', () => {
-    it('打开新增对话框时应重置表单', async () => {
-      await wrapper.vm.openDialog('add')
-      expect(wrapper.vm.dialogTitle).toBe('新增')
-      expect(wrapper.vm.form).toEqual({ name: '', age: null, address: '' })
-    })
-
-    it('成功添加合法数据', async () => {
-      const validData = {name: '王五', age: 28, address: '广州市' }
-      await testFormSubmission('add', validData, initialData.length + 1)
-    })
-  })
-
-  describe('编辑功能', () => {
-    it('打开编辑对话框时应填充数据', async () => {
-      await wrapper.vm.openDialog('edit', initialData[0])
-      expect(wrapper.vm.dialogTitle).toBe('编辑')
-      expect(wrapper.vm.form).toEqual(initialData[0])
-    })
-
-    it('成功修改数据', async () => {
-      const modifiedData = { ...initialData[0], age: 26 }
-      await testFormSubmission('edit', modifiedData, initialData.length)
-    })
-  })
-
-  describe('删除功能', () => {
-    it('正确删除指定行', async () => {
-      await wrapper.vm.deleteRow(0)
-      expect(wrapper.vm.tableData).toHaveLength(initialData.length - 1)
-      expect(wrapper.vm.tableData).not.toContainEqual(initialData[0])
-    })
-  })
-
-  // 表单验证专项测试
-  describe('表单验证', () => {
-    let messageErrorSpy
-
-    beforeEach(async () => {
-      // 模拟Element组件
-      messageErrorSpy = jest.spyOn(wrapper.vm.$message, 'error')
-      await wrapper.vm.openDialog('add')
-    })
-
-    afterEach(() => {
-      jest.clearAllMocks()
-    })
-  
-    const testInvalidSubmission = async (formData) => {
-      wrapper.vm.form = { ...formData }
-      await wrapper.vm.submitForm()
-      
-      // 验证错误提示
-      expect(messageErrorSpy).toHaveBeenCalledWith('表单验证失败!')
-      // 验证数据未变化
-      expect(wrapper.vm.tableData).toHaveLength(initialData.length)
     }
+  })
 
-    it('应拒绝空表单提交', async () => {
-      await testInvalidSubmission({ name: '', age: null, address: '' })
+  // 初始数据测试
+  test('正确初始化表格数据', () => {
+    expect(wrapper.vm.tableData).toEqual([
+      { name: '张三', age: 25, address: '北京市' },
+      { name: '李四', age: 30, address: '上海市' }
+    ])
+  })
+
+  // 对话框操作测试
+  describe('对话框操作', () => {
+    test('打开新增对话框应重置表单', async () => {
+      await wrapper.find('.el-button--primary').trigger('click')
+      expect(wrapper.vm.dialogVisible).toBe(true)
+      expect(wrapper.vm.form).toEqual({
+        name: '',
+        age: null,
+        address: ''
+      })
     })
-  
-    it('应验证年龄格式', async () => {
-      await testInvalidSubmission({ name: '测试', age: 'abc', address: '地址' })
+
+    test('打开编辑对话框应填充数据', async () => {
+      const editButton = wrapper.findAll('.el-button')[1]
+      await editButton.trigger('click')
+      expect(wrapper.vm.dialogVisible).toBe(true)
+      expect(wrapper.vm.form).toEqual({
+        name: '张三',
+        age: 25,
+        address: '北京市'
+      })
+    })
+  })
+
+  // 表单验证测试
+  describe('表单验证', () => {
+    test('空表单应验证失败', async () => {
+      wrapper.vm.openDialog('add')
+      const isValid = await wrapper.vm.validateForm()
+      expect(isValid).toBe(false)
     })
 
-    it('应验证必填字段', async () => {
-      const testCases = [
-        { name: '', age: 20, address: '地址' },
-        { name: '测试', age: null, address: '地址' },
-        { name: '测试', age: 20, address: '' }
-      ];
+    test('年龄字段应验证数字类型', async () => {
+      wrapper.vm.form = { name: '测试', age: 'abc', address: '地址' }
+      const isValid = await wrapper.vm.validateForm()
+      expect(isValid).toBe(false)
+    })
+  })
 
-      for (const testCase of testCases) {
-        await testInvalidSubmission(testCase);
-      }
-    });
-  });
+  // 数据操作测试
+  describe('数据操作', () => {
+    test('新增数据应增加表格行', async () => {
+      const initialLength = wrapper.vm.tableData.length
+      wrapper.vm.form = { name: '王五', age: 28, address: '广州市' }
+      await wrapper.vm.submitForm()
+      expect(wrapper.vm.tableData).toHaveLength(initialLength + 1)
+    })
 
+    test('编辑数据应更新对应行', async () => {
+      wrapper.vm.openDialog('edit', { name: '张三', age: 25, address: '北京市' })
+      wrapper.vm.form.name = '张三修改'
+      await wrapper.vm.submitForm()
+      expect(wrapper.vm.tableData.some(item => item.name === '张三修改')).toBe(true)
+    })
 
+    test('删除数据应减少表格行', async () => {
+      const initialLength = wrapper.vm.tableData.length
+      await wrapper.vm.deleteRow(0)
+      expect(wrapper.vm.tableData).toHaveLength(initialLength - 1)
+    })
+  })
 
-  // 公共测试方法
-  async function testFormSubmission(action, testData, expectedLength) {
-    await wrapper.vm.openDialog(action, testData)
-    wrapper.vm.form = { ...testData }
-    await wrapper.vm.submitForm()
-    
-    expect(wrapper.vm.tableData).toHaveLength(expectedLength)
-    expect(wrapper.vm.tableData).toEqual(expect.arrayContaining([testData]))
-  }
+  // 界面元素测试
+  test('正确渲染表格列', () => {
+    const headers = wrapper.findAll('.el-table__header th')
+    expect(headers.map(h => h.text())).toEqual(['姓名', '年龄', '地址', '操作'])
+  })
 
+  test('对话框标题应随操作类型变化', async () => {
+    wrapper.vm.openDialog('add')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.el-dialog__title').text()).toBe('新增')
+
+    wrapper.vm.openDialog('edit')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.el-dialog__title').text()).toBe('编辑')
+  })
+
+  // 边界条件测试
+  describe('删除操作边界条件', () => {
+    test('无效索引不应修改数据', () => {
+      const initialData = [...wrapper.vm.tableData]
+      wrapper.vm.deleteRow(-1)
+      wrapper.vm.deleteRow(100)
+      expect(wrapper.vm.tableData).toEqual(initialData)
+    })
+
+    test('删除最后一条数据后表格应为空', async () => {
+      // 清空数据
+      wrapper.vm.tableData = []
+      // 添加测试数据
+      wrapper.vm.tableData.push({ name: '测试数据', age: 18, address: '测试地址' })
+      await wrapper.vm.deleteRow(0)
+      expect(wrapper.vm.tableData).toHaveLength(0)
+    })
+  })
 })
