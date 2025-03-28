@@ -1,4 +1,4 @@
-# **AI 驱动单元测试分享**
+# **AI 辅助单元测试**
 
 ## **1. AI 在单测中的作用**
 - AI 如何辅助测试？
@@ -17,9 +17,9 @@
 
 ## **3. AI 辅助单测的挑战 & 解决方案**
 - **AI 生成测试的局限性**
-  - 代码逻辑复杂时 AI 可能误判
   - 业务上下文 AI 可能无法理解
-  - DOM 类名不唯一时 AI 可能误判
+  - 类名不唯一时 AI 可能误判
+  - 使用前端UI框架，DOM查找不准确
 - **如何提升 AI 生成测试的质量？**
   - Prompt 技巧：给 AI 提供更详细的上下文
   - 人工 review：结合 AI + 人工优化测试
@@ -32,3 +32,20 @@ Funcs: 函数覆盖率
 Lines: 行覆盖率
 Uncovered Line #s: 未覆盖的代码行数
  -->
+
+
+
+```
+    if (!this.users.has(id)) {
+      throw new Error('User not found');
+    }
+    if (email && !this.validateEmail(email)) {
+      throw new Error('Invalid email format');
+    }
+    if (name) {
+      this.users.get(id).name = name;
+    }
+    if (email) {
+      this.users.get(id).email = email;
+    }
+```

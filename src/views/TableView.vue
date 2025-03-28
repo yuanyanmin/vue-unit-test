@@ -63,9 +63,8 @@ export default {
     openDialog(type, row) {
       this.dialogType = type
       this.dialogTitle = type === 'add' ? '新增' : '编辑'
-
       this.form = type === 'add' ? { name: '', age: null, address: '' } : { ...this.form, ...row }
-      // this.form = row || { name: '', age: null, address: '' }
+      this.form = row || { name: '', age: null, address: '' }
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.form?.clearValidate()
