@@ -50,9 +50,18 @@ describe('TableView.vue', () => {
     })
 
     test('年龄字段应验证数字类型', async () => {
-      wrapper.vm.form = { name: '测试', age: 'abc', address: '地址' }
+      wrapper.vm.openDialog('add', { name: '测试', age: 'abc', address: '地址' })
+
+      // wrapper.vm.form = { name: '测试', age: 'abc', address: '地址' }
       const isValid = await wrapper.vm.validateForm()
       expect(isValid).toBe(false)
+    })
+
+    test('正确应返回', async () => {
+      wrapper.vm.openDialog('add', { name: '测试', age: 1, address: '地址' })
+      // wrapper.vm.form = { name: '测试', age: '1', address: '地址' }
+      const isValid = await wrapper.vm.validateForm()
+      expect(isValid).toBe(true)
     })
   })
 
